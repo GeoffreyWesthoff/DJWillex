@@ -1461,6 +1461,68 @@ class MusicBot(discord.Client):
                 delete_after=20
             )
 
+    async def cmd_voteskip(self, player, channel, author, message, permissions, voice_channel):
+        """
+        Usage:
+            {command_prefix}voteskip
+
+        Skips the current song when enough votes are cast, or by the bot owner.
+        """
+
+        if player.is_stopped:
+            raise exceptions.CommandError("Can't skip! The player is not playing!", expire_in=20)
+
+        if not player.current_entry:
+            if player.playlist.peek():
+                if player.playlist.peek()._is_downloading:
+                    # print(player.playlist.peek()._waiting_futures[0].__dict__)
+                    return Response("The next song (%s) is downloading, please wait." % player.playlist.peek().title)
+
+                elif player.playlist.peek().is_downloaded:
+                    print("The next song will be played shortly.  Please wait.")
+                else:
+                    print("Something odd is happening.  "
+                          "You might want to restart the bot if it doesn't start working.")
+            else:
+                print("Something strange is happening.  "
+                      "You might want to restart the bot if it doesn't start working.")
+                
+        # TODO: ignore person if they're deaf or take them out of the list or something?
+        # Currently is recounted if they vote, deafen, then vote
+
+        num_voice = sum(1 for m in voice_channel.voice_members if not (
+            m.deaf or m.self_deaf or m.id in [self.config.owner_id, self.user.id]))
+
+        num_skips = player.skip_state.add_skipper(author.id, message)
+
+        skips_remaining = min(self.config.skips_required,
+                              sane_round_int(num_voice * self.config.skip_ratio_required)) - num_skips
+
+        if skips_remaining <= 0:
+            player.skip()  # check autopause stuff here
+            return Response(
+                'your skip for **{}** was acknowledged.'
+                '\nThe vote to skip has been passed.{}'.format(
+                    player.current_entry.title,
+                    ' Next song coming up!' if player.playlist.peek() else ''
+                ),
+                reply=True,
+                delete_after=20
+            )
+
+        else:
+            # TODO: When a song gets skipped, delete the old x needed to skip messages
+            return Response(
+                'your skip for **{}** was acknowledged.'
+                '\n**{}** more {} required to vote to skip this song.'.format(
+                    player.current_entry.title,
+                    skips_remaining,
+                    'person is' if skips_remaining == 1 else 'people are'
+                ),
+                reply=True,
+                delete_after=20
+            )
+
     async def cmd_volume(self, message, player, new_volume=None):
         """
         Usage:
