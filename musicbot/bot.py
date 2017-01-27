@@ -1309,16 +1309,16 @@ class MusicBot(discord.Client):
         chperms = author.voice_channel.permissions_for(author.voice_channel.server.me)
 
         if not chperms.connect:
-            self.safe_print("Cannot join channel \"%s\", no permission." % author.voice_channel.name)
+            self.safe_print("Kan niet in kanaal komen \"%s\", geen permissies." % author.voice_channel.name)
             return Response(
-                "```Cannot join channel \"%s\", no permission.```" % author.voice_channel.name,
+                "```Kan niet in kanaal komen \"%s\", geen permissies.```" % author.voice_channel.name,
                 delete_after=25
             )
 
         elif not chperms.speak:
-            self.safe_print("Will not join channel \"%s\", no permission to speak." % author.voice_channel.name)
+            self.safe_print("Kan niet in kanaal komen \"%s\", geen permissie voor spraak." % author.voice_channel.name)
             return Response(
-                "```Will not join channel \"%s\", no permission to speak.```" % author.voice_channel.name,
+                "```Kan niet in kanaal komen \"%s\", geen permissie voor spraak.```" % author.voice_channel.name,
                 delete_after=25
             )
 
@@ -1342,7 +1342,7 @@ class MusicBot(discord.Client):
             player.pause()
 
         else:
-            raise exceptions.CommandError('Player is not playing.', expire_in=30)
+            raise exceptions.CommandError('Muziek speelt nu niet.', expire_in=30)
 
     async def cmd_resume(self, player):
         """
@@ -1356,7 +1356,7 @@ class MusicBot(discord.Client):
             player.resume()
 
         else:
-            raise exceptions.CommandError('Player is not paused.', expire_in=30)
+            raise exceptions.CommandError('Muziek is nu niet gepauseerd.', expire_in=30)
 
     async def cmd_shuffle(self, channel, player):
         """
@@ -1400,22 +1400,22 @@ class MusicBot(discord.Client):
         """
 
         if player.is_stopped:
-            raise exceptions.CommandError("Can't skip! The player is not playing!", expire_in=20)
+            raise exceptions.CommandError("Kan geen nummer overslaan, er draait geen muziek!", expire_in=20)
 
         if not player.current_entry:
             if player.playlist.peek():
                 if player.playlist.peek()._is_downloading:
                     # print(player.playlist.peek()._waiting_futures[0].__dict__)
-                    return Response("The next song (%s) is downloading, please wait." % player.playlist.peek().title)
+                    return Response("Het volgende nummer (%s) is aan het downloaden, even wachten." % player.playlist.peek().title)
 
                 elif player.playlist.peek().is_downloaded:
-                    print("The next song will be played shortly.  Please wait.")
+                    print("Het volgende nummer wordt spoedig afgespeeld.  Even geduld alsjeblieft.")
                 else:
-                    print("Something odd is happening.  "
-                          "You might want to restart the bot if it doesn't start working.")
+                    print("Er gebeurt iets vreemds.  "
+                          "Je wilt misschien de bot restarten als het niet begint te werken.")
             else:
-                print("Something strange is happening.  "
-                      "You might want to restart the bot if it doesn't start working.")
+                print("Er gebeurt iets vreemds.  "
+                          "Je wilt misschien de bot restarten als het niet begint te werken.")
 
         if author.id == self.config.owner_id \
                 or permissions.instaskip \
@@ -1439,10 +1439,10 @@ class MusicBot(discord.Client):
         if skips_remaining <= 0:
             player.skip()  # check autopause stuff here
             return Response(
-                'your skip for **{}** was acknowledged.'
-                '\nThe vote to skip has been passed.{}'.format(
+                'Je stem **{}** overslaan was bevestigd.'
+                '\nDe hoeveelheid stemmen om het nummer over te slaan is gehaald.{}'.format(
                     player.current_entry.title,
-                    ' Next song coming up!' if player.playlist.peek() else ''
+                    ' Volgende nummer komt eraan!' if player.playlist.peek() else ''
                 ),
                 reply=True,
                 delete_after=20
@@ -1451,11 +1451,11 @@ class MusicBot(discord.Client):
         else:
             # TODO: When a song gets skipped, delete the old x needed to skip messages
             return Response(
-                'your skip for **{}** was acknowledged.'
-                '\n**{}** more {} required to vote to skip this song.'.format(
+                'Je stem **{}** overslaan was bevestigd.'
+                '\n**{}** stemmen nog {} nodig om het nummer over te slaan.'.format(
                     player.current_entry.title,
                     skips_remaining,
-                    'person is' if skips_remaining == 1 else 'people are'
+                    'persoon is' if skips_remaining == 1 else 'mensen zijn'
                 ),
                 reply=True,
                 delete_after=20
@@ -1470,22 +1470,22 @@ class MusicBot(discord.Client):
         """
 
         if player.is_stopped:
-            raise exceptions.CommandError("Can't skip! The player is not playing!", expire_in=20)
+            raise exceptions.CommandError("Kan geen nummer overslaan, er draait geen muziek!", expire_in=20)
 
         if not player.current_entry:
             if player.playlist.peek():
                 if player.playlist.peek()._is_downloading:
                     # print(player.playlist.peek()._waiting_futures[0].__dict__)
-                    return Response("The next song (%s) is downloading, please wait." % player.playlist.peek().title)
+                    return Response("Het volgende nummer (%s) is aan het downloaden, even wachten." % player.playlist.peek().title)
 
                 elif player.playlist.peek().is_downloaded:
-                    print("The next song will be played shortly.  Please wait.")
+                    print("Het volgende nummer wordt spoedig afgespeeld.  Even geduld alsjeblieft.")
                 else:
-                    print("Something odd is happening.  "
-                          "You might want to restart the bot if it doesn't start working.")
+                    print("Er gebeurt iets vreemds.  "
+                          "Je wilt misschien de bot restarten als het niet begint te werken.")
             else:
-                print("Something strange is happening.  "
-                      "You might want to restart the bot if it doesn't start working.")
+                print("Er gebeurt iets vreemds.  "
+                          "Je wilt misschien de bot restarten als het niet begint te werken.")
                 
         # TODO: ignore person if they're deaf or take them out of the list or something?
         # Currently is recounted if they vote, deafen, then vote
@@ -1501,10 +1501,10 @@ class MusicBot(discord.Client):
         if skips_remaining <= 0:
             player.skip()  # check autopause stuff here
             return Response(
-                'your skip for **{}** was acknowledged.'
-                '\nThe vote to skip has been passed.{}'.format(
+                'Je stem **{}** overslaan was bevestigd.'
+                '\nDe hoeveelheid stemmen om het nummer over te slaan is gehaald.{}'.format(
                     player.current_entry.title,
-                    ' Next song coming up!' if player.playlist.peek() else ''
+                    ' Volgende nummer komt eraan!' if player.playlist.peek() else ''
                 ),
                 reply=True,
                 delete_after=20
@@ -1513,11 +1513,11 @@ class MusicBot(discord.Client):
         else:
             # TODO: When a song gets skipped, delete the old x needed to skip messages
             return Response(
-                'your skip for **{}** was acknowledged.'
-                '\n**{}** more {} required to vote to skip this song.'.format(
+                'Je stem **{}** overslaan was bevestigd.'
+                '\n**{}** stemmen nog {} nodig om het nummer over te slaan.'.format(
                     player.current_entry.title,
                     skips_remaining,
-                    'person is' if skips_remaining == 1 else 'people are'
+                    'persoon is' if skips_remaining == 1 else 'mensen zijn'
                 ),
                 reply=True,
                 delete_after=20
@@ -1533,7 +1533,7 @@ class MusicBot(discord.Client):
         """
 
         if not new_volume:
-            return Response('Current volume: `%s%%`' % int(player.volume * 100), reply=True, delete_after=20)
+            return Response('Huidig volume: `%s%%`' % int(player.volume * 100), reply=True, delete_after=20)
 
         relative = False
         if new_volume[0] in '+-':
@@ -1543,7 +1543,7 @@ class MusicBot(discord.Client):
             new_volume = int(new_volume)
 
         except ValueError:
-            raise exceptions.CommandError('{} is not a valid number'.format(new_volume), expire_in=20)
+            raise exceptions.CommandError('{} is geen geldig getal'.format(new_volume), expire_in=20)
 
         if relative:
             vol_change = new_volume
@@ -1554,16 +1554,16 @@ class MusicBot(discord.Client):
         if 0 < new_volume <= 100:
             player.volume = new_volume / 100.0
 
-            return Response('updated volume from %d to %d' % (old_volume, new_volume), reply=True, delete_after=20)
+            return Response('volume aangepast van %d to %d' % (old_volume, new_volume), reply=True, delete_after=20)
 
         else:
             if relative:
                 raise exceptions.CommandError(
-                    'Unreasonable volume change provided: {}{:+} -> {}%.  Provide a change between {} and {:+}.'.format(
+                    'Onmogelijke volume verandering gegeven: {}{:+} -> {}%.  Geef een verandering tussen {} en {:+}.'.format(
                         old_volume, vol_change, old_volume + vol_change, 1 - old_volume, 100 - old_volume), expire_in=20)
             else:
                 raise exceptions.CommandError(
-                    'Unreasonable volume provided: {}%. Provide a value between 1 and 100.'.format(new_volume), expire_in=20)
+                    'Onmogelijke volume verandering gegeven: {}%. Geef een waarde tussen 0 en 100.'.format(new_volume), expire_in=20)
 
     async def cmd_queue(self, channel, player):
         """
@@ -1575,7 +1575,7 @@ class MusicBot(discord.Client):
 
         lines = []
         unlisted = 0
-        andmoretext = '* ... and %s more*' % ('x' * len(player.playlist.entries))
+        andmoretext = '* ... en %s meer*' % ('x' * len(player.playlist.entries))
 
         if player.current_entry:
             song_progress = str(timedelta(seconds=player.progress)).lstrip('0').lstrip(':')
@@ -1583,14 +1583,14 @@ class MusicBot(discord.Client):
             prog_str = '`[%s/%s]`' % (song_progress, song_total)
 
             if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
-                lines.append("Now Playing: **%s** added by **%s** %s\n" % (
+                lines.append("Speelt nu: **%s** toegevoegd door **%s** %s\n" % (
                     player.current_entry.title, player.current_entry.meta['author'].name, prog_str))
             else:
-                lines.append("Now Playing: **%s** %s\n" % (player.current_entry.title, prog_str))
+                lines.append("Speelt nu: **%s** %s\n" % (player.current_entry.title, prog_str))
 
         for i, item in enumerate(player.playlist, 1):
             if item.meta.get('channel', False) and item.meta.get('author', False):
-                nextline = '`{}.` **{}** added by **{}**'.format(i, item.title, item.meta['author'].name).strip()
+                nextline = '`{}.` **{}** toegevoegd door **{}**'.format(i, item.title, item.meta['author'].name).strip()
             else:
                 nextline = '`{}.` **{}**'.format(i, item.title).strip()
 
@@ -1604,11 +1604,11 @@ class MusicBot(discord.Client):
             lines.append(nextline)
 
         if unlisted:
-            lines.append('\n*... and %s more*' % unlisted)
+            lines.append('\n*... en %s meer*' % unlisted)
 
         if not lines:
             lines.append(
-                'There are no songs queued! Queue something with {}play.'.format(self.config.command_prefix))
+                'Er zitten geen nummers in de wachtrij! Voeg iets toe met {}play.'.format(self.config.command_prefix))
 
         message = '\n'.join(lines)
         return Response(message, delete_after=30)
@@ -1625,7 +1625,7 @@ class MusicBot(discord.Client):
 
         lines = []
         unlisted = 0
-        andmoretext = '* ... and %s more*' % ('x' * len(player.playlist.entries))
+        andmoretext = '* ... en %s meer*' % ('x' * len(player.playlist.entries))
 
         if player.current_entry:
             song_progress = str(timedelta(seconds=player.progress)).lstrip('0').lstrip(':')
@@ -1633,14 +1633,14 @@ class MusicBot(discord.Client):
             prog_str = '`[%s/%s]`' % (song_progress, song_total)
 
             if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
-                lines.append("Now Playing: **%s** added by **%s** %s\n" % (
+                lines.append("Speelt nu: **%s** toegevoegd door **%s** %s\n" % (
                     player.current_entry.title, player.current_entry.meta['author'].name, prog_str))
             else:
-                lines.append("Now Playing: **%s** %s\n" % (player.current_entry.title, prog_str))
+                lines.append("Speelt nu: **%s** %s\n" % (player.current_entry.title, prog_str))
 
         for i, item in enumerate(player.playlist, 1):
             if item.meta.get('channel', False) and item.meta.get('author', False):
-                nextline = '`{}.` **{}** added by **{}**'.format(i, item.title, item.meta['author'].name).strip()
+                nextline = '`{}.` **{}** toegevoegd door **{}**'.format(i, item.title, item.meta['author'].name).strip()
             else:
                 nextline = '`{}.` **{}**'.format(i, item.title).strip()
 
@@ -1654,11 +1654,11 @@ class MusicBot(discord.Client):
             lines.append(nextline)
 
         if unlisted:
-            lines.append('\n*... and %s more*' % unlisted)
+            lines.append('\n*... en %s meer*' % unlisted)
 
         if not lines:
             lines.append(
-                'There are no songs queued! Queue something with {}play.'.format(self.config.command_prefix))
+                'Er zitten geen nummers in de wachtrij! Voeg iets toe met {}play.'.format(self.config.command_prefix))
 
         message = '\n'.join(lines)
         return Response(message, delete_after=30)
@@ -1676,7 +1676,7 @@ class MusicBot(discord.Client):
             float(search_range)  # lazy check
             search_range = min(int(search_range), 1000)
         except:
-            return Response("enter a number.  NUMBER.  That means digits.  `15`.  Etc.", reply=True, delete_after=8)
+            return Response("voer een nummer in.  NUMMER.  Dat zijn cijfers.  `15`.  Enzo.", reply=True, delete_after=8)
 
         await self.safe_delete_message(message, quiet=True)
 
@@ -1696,7 +1696,7 @@ class MusicBot(discord.Client):
         if self.user.bot:
             if channel.permissions_for(server.me).manage_messages:
                 deleted = await self.purge_from(channel, check=check, limit=search_range, before=message)
-                return Response('Cleaned up {} message{}.'.format(len(deleted), 's' * bool(deleted)), delete_after=15)
+                return Response('{} bericht{} schoongemaakt .'.format(len(deleted), 'en' * bool(deleted)), delete_after=15)
 
         deleted = 0
         async for entry in self.logs_from(channel, search_range, before=message):
@@ -1720,7 +1720,7 @@ class MusicBot(discord.Client):
                     except discord.HTTPException:
                         pass
 
-        return Response('Cleaned up {} message{}.'.format(deleted, 's' * bool(deleted)), delete_after=15)
+        return Response('{} bericht{} schoongemaakt .'.format(deleted, 'en' * bool(deleted)), delete_after=15)
 
     async def cmd_pldump(self, channel, song_url):
         """
@@ -1933,7 +1933,7 @@ class MusicBot(discord.Client):
             return
 
         if message.author == self.user:
-            self.safe_print("Ignoring command from myself (%s)" % message.content)
+            self.safe_print("Negeer commando van mezelf (%s)" % message.content)
             return
 
         if self.config.bound_channels and message.channel.id not in self.config.bound_channels and not message.channel.is_private:
@@ -1948,15 +1948,15 @@ class MusicBot(discord.Client):
 
         if message.channel.is_private:
             if not (message.author.id == self.config.owner_id and command == 'joinserver'):
-                await self.send_message(message.channel, 'You cannot use this bot in private messages.')
+                await self.send_message(message.channel, 'Je kan deze bot niet gebruiken in een privé bericht.')
                 return
 
         if message.author.id in self.blacklist and message.author.id != self.config.owner_id:
-            self.safe_print("[User blacklisted] {0.id}/{0.name} ({1})".format(message.author, message_content))
+            self.safe_print("[Gebruiker geblokkeerd] {0.id}/{0.name} ({1})".format(message.author, message_content))
             return
 
         else:
-            self.safe_print("[Command] {0.id}/{0.name} ({1})".format(message.author, message_content))
+            self.safe_print("[Commando] {0.id}/{0.name} ({1})".format(message.author, message_content))
 
         user_permissions = self.permissions.for_user(message.author)
 
@@ -2016,18 +2016,18 @@ class MusicBot(discord.Client):
             if message.author.id != self.config.owner_id:
                 if user_permissions.command_whitelist and command not in user_permissions.command_whitelist:
                     raise exceptions.PermissionsError(
-                        "This command is not enabled for your group (%s)." % user_permissions.name,
+                        "Dit commando is niet ingeschakeld voor jouw groep (%s)." % user_permissions.name,
                         expire_in=20)
 
                 elif user_permissions.command_blacklist and command in user_permissions.command_blacklist:
                     raise exceptions.PermissionsError(
-                        "This command is disabled for your group (%s)." % user_permissions.name,
+                        "Dit commando is verboden voor jouw groep (%s)." % user_permissions.name,
                         expire_in=20)
 
             if params:
                 docs = getattr(handler, '__doc__', None)
                 if not docs:
-                    docs = 'Usage: {}{} {}'.format(
+                    docs = 'Gebruik: {}{} {}'.format(
                         self.config.command_prefix,
                         command,
                         ' '.join(args_expected)
@@ -2109,18 +2109,18 @@ class MusicBot(discord.Client):
 
         if sum(1 for m in my_voice_channel.voice_members if m != after.server.me):
             if auto_paused and player.is_paused:
-                print("[config:autopause] Unpausing")
+                print("[config:autopause] Verder gaan")
                 self.server_specific_data[after.server]['auto_paused'] = False
                 player.resume()
         else:
             if not auto_paused and player.is_playing:
-                print("[config:autopause] Pausing")
+                print("[config:autopause] Pauzeren")
                 self.server_specific_data[after.server]['auto_paused'] = True
                 player.pause()
 
     async def on_server_update(self, before:discord.Server, after:discord.Server):
         if before.region != after.region:
-            self.safe_print("[Servers] \"%s\" changed regions: %s -> %s" % (after.name, before.region, after.region))
+            self.safe_print("[Servers] \"%s\" veranderden van regio: %s -> %s" % (after.name, before.region, after.region))
 
             await self.reconnect_voice_client(after)
 
