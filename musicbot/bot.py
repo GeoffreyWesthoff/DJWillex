@@ -1206,7 +1206,7 @@ class MusicBot(discord.Client):
 
         search_query = '%s%s:%s' % (services[service], items_requested, ' '.join(leftover_args))
 
-        search_msg = await self.send_message(channel, "Zoekt voor video's...")
+        search_msg = await self.send_message(channel, "Zoekt naar video's...")
         await self.send_typing(channel)
 
         try:
@@ -1930,15 +1930,18 @@ class MusicBot(discord.Client):
         await self.disconnect_all_voice_clients()
         raise exceptions.TerminateSignal
 
+    async def cmd_author(self, message, channel):
+        await self.safe_send_message(channel, "Deze bot wordt gedraaid en onderhouden door Auxim. https://github.com/Geoffco-Productions/DJWillex")
+
+    async def cmd_spooky(self, message, channel):
+        await self.safe_send_message(channel, ":ghost:")
+        await self.safe_send_message(channel, ";play spooky scary skeletoons the living tombstone")
+
     async def on_message(self, message):
         await self.wait_until_ready()
 
         message_content = message.content.strip()
         if not message_content.startswith(self.config.command_prefix):
-            return
-
-        if message.author == self.user:
-            self.safe_print("Negeer commando van mezelf (%s)" % message.content)
             return
 
         if self.config.bound_channels and message.channel.id not in self.config.bound_channels and not message.channel.is_private:
