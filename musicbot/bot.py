@@ -1696,7 +1696,7 @@ class MusicBot(discord.Client):
         if self.user.bot:
             if channel.permissions_for(server.me).manage_messages:
                 deleted = await self.purge_from(channel, check=check, limit=search_range, before=message)
-                return Response('{} bericht{} schoongemaakt .'.format(len(deleted), 'en' * bool(deleted)), delete_after=15)
+                return Response('{} bericht{} opgeruimd.'.format(len(deleted), 'en' * bool(deleted)), delete_after=15)
 
         deleted = 0
         async for entry in self.logs_from(channel, search_range, before=message):
@@ -1720,7 +1720,7 @@ class MusicBot(discord.Client):
                     except discord.HTTPException:
                         pass
 
-        return Response('{} bericht{} schoongemaakt .'.format(deleted, 'en' * bool(deleted)), delete_after=15)
+        return Response('{} bericht{} opgeruimd.'.format(deleted, 'en' * bool(deleted)), delete_after=15)
 
     async def cmd_pldump(self, channel, song_url):
         """
