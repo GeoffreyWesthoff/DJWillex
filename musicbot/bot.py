@@ -8,6 +8,7 @@ import aiohttp
 import discord
 import asyncio
 import traceback
+import random
 
 from discord import utils
 from discord.object import Object
@@ -1007,15 +1008,19 @@ class MusicBot(discord.Client):
 
             except exceptions.WrongEntryTypeError as e:
                 if e.use_url == song_url:
-                    print("[Warning] Determined incorrect entry type, but suggested url is the same.  Help.")
+                    print("[Warning] bot fkn dies")
 
                 if self.config.debug_mode:
-                    print("[Info] Assumed url \"%s\" was a single entry, was actually a playlist" % song_url)
-                    print("[Info] Using \"%s\" instead" % e.use_url)
+                    print("[Info] Ging er van uit dat \"%s\" slechts één nummer was, maar was stiekem een playlist" % song_url)
+                    print("[Info] Gebruikt \"%s\" in plaats van" % e.use_url)
 
                 return await self.cmd_play(player, channel, author, permissions, leftover_args, e.use_url)
 
-            reply_text = "**%s** wordt straks afgespeeld. Positie in wachtrij: %s"
+            
+            if random.randrange(1,20) == 10:
+                reply_text = ("Rustaagh, ben al bezig **%s** in de lijst te zetten. Positie in wachtrij: %s")  
+            else:
+                reply_text = ("**%s** wordt straks afgespeeld. Positie in wachtrij: %s")   
             btext = entry.title
 
         if position == 1 and player.is_stopped:
