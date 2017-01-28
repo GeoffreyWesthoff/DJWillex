@@ -723,12 +723,13 @@ class MusicBot(discord.Client):
 
     async def cmd_help(self, command=None):
         """
-        Usage:
-            {command_prefix}help [command]
+        Uitleg:
+            {command_prefix}help [commando]
 
-        Prints a help message.
-        If a command is specified, it prints a help message for that command.
-        Otherwise, it lists the available commands.
+        Typt een hulpbericht.
+        Als je een commando aangeeft, typt het de hulp voor dat commando.
+        Anders typt het een lijst van alle commando's.
+        Waarom vraag je ook al weer de help van het help commando op? Gekkie.
         """
 
         if command:
@@ -845,12 +846,11 @@ class MusicBot(discord.Client):
 
     async def cmd_play(self, player, channel, author, permissions, leftover_args, song_url):
         """
-        Usage:
-            {command_prefix}play song_link
-            {command_prefix}play text to search for
+        Uitleg:
+            {command_prefix}play link
+            {command_prefix}play zoektekst
 
-        Adds the song to the playlist.  If a link is not provided, the first
-        result from a youtube search is added to the queue.
+        Voegt een nummer toe aan de wachtrij.  Als je geen link invoert wordt het eerste resultaat van youtube gepakt.
         """
 
         song_url = song_url.strip('<>')
@@ -1135,19 +1135,19 @@ class MusicBot(discord.Client):
 
     async def cmd_search(self, player, channel, author, permissions, leftover_args):
         """
-        Usage:
-            {command_prefix}search [service] [number] query
+        Uitleg:
+            {command_prefix}search [website] [nummer] zoekopdracht
 
-        Searches a service for a video and adds it to the queue.
+        Zoekt een website voor een video
         - service: any one of the following services:
-            - youtube (yt) (default if unspecified)
+            - youtube (yt) (standaard indien niet aangeven)
             - soundcloud (sc)
-            - yahoo (yh)
-        - number: return a number of video results and waits for user to choose one
-          - defaults to 1 if unspecified
-          - note: If your search query starts with a number,
-                  you must put your query in quotes
-            - ex: {command_prefix}search 2 "I ran seagulls"
+            - yahoo (yh) (huh wat waarom is yahoo een ding het is 2017 maat)
+        - nummer: geef aan hoeveel video's je terug wilt krijgen
+          - standaard is 1 als je niets aangeeft
+          - opmerking: Als je zoekopdracht start met een nummer moet je zoekopdracht in aanhalingstekens,
+                  
+            - voorbeeld: {command_prefix}search 2 "2 meiden 1 beker"
         """
 
         if permissions.max_songs and player.playlist.count_for_user(author) > permissions.max_songs:
@@ -1265,10 +1265,10 @@ class MusicBot(discord.Client):
 
     async def cmd_np(self, player, channel, server, message):
         """
-        Usage:
+        Uitleg:
             {command_prefix}np
 
-        Displays the current song in chat.
+        Laat in chat zien welk nummer nu gespeeld wordt. 
         """
 
         if player.current_entry:
@@ -1296,10 +1296,10 @@ class MusicBot(discord.Client):
 
     async def cmd_summon(self, channel, author, voice_channel):
         """
-        Usage:
+        Uitleg:
             {command_prefix}summon
 
-        Call the bot to the summoner's voice channel.
+        Roep de bot naar je spraakkanaal. 
         """
 
         if not author.voice_channel:
@@ -1337,10 +1337,10 @@ class MusicBot(discord.Client):
 
     async def cmd_pause(self, player):
         """
-        Usage:
+        Uitleg:
             {command_prefix}pause
 
-        Pauses playback of the current song.
+        Pauzeert het nummer dat nu speelt. 
         """
 
         if player.is_playing:
@@ -1351,10 +1351,10 @@ class MusicBot(discord.Client):
 
     async def cmd_resume(self, player):
         """
-        Usage:
+        Uitleg:
             {command_prefix}resume
 
-        Resumes playback of a paused song.
+        Ga weer verder met het spelen van dit nummer.
         """
 
         if player.is_paused:
@@ -1365,10 +1365,10 @@ class MusicBot(discord.Client):
 
     async def cmd_shuffle(self, channel, player):
         """
-        Usage:
+        Uitleg:
             {command_prefix}shuffle
 
-        Shuffles the playlist.
+        Husselt de wachtrij.
         """
 
         player.playlist.shuffle()
@@ -1387,10 +1387,10 @@ class MusicBot(discord.Client):
 
     async def cmd_clear(self, player, author):
         """
-        Usage:
+        Uitleg:
             {command_prefix}clear
 
-        Clears the playlist.
+        Leegt de wachtrij.
         """
 
         player.playlist.clear()
@@ -1398,10 +1398,10 @@ class MusicBot(discord.Client):
 
     async def cmd_skip(self, player, channel, author, message, permissions, voice_channel):
         """
-        Usage:
+        Uitleg:
             {command_prefix}skip
 
-        Skips the current song when enough votes are cast, or by the bot owner.
+        Slaat het nummer dat speelt over als er genoeg stemmen zijn, of een beheerder dit commando gebruikt.
         """
 
         if player.is_stopped:
@@ -1444,7 +1444,7 @@ class MusicBot(discord.Client):
         if skips_remaining <= 0:
             player.skip()  # check autopause stuff here
             return Response(
-                'Je stem **{}** overslaan was bevestigd.'
+                'Je stem om **{}** over te slaan was bevestigd.'
                 '\nDe hoeveelheid stemmen om het nummer over te slaan is gehaald.{}'.format(
                     player.current_entry.title,
                     ' Volgende nummer komt eraan!' if player.playlist.peek() else ''
@@ -1456,7 +1456,7 @@ class MusicBot(discord.Client):
         else:
             # TODO: When a song gets skipped, delete the old x needed to skip messages
             return Response(
-                'Je stem **{}** overslaan was bevestigd.'
+                'Je stem om **{}** over te slaan was bevestigd.'
                 '\n**{}** stemmen nog {} nodig om het nummer over te slaan.'.format(
                     player.current_entry.title,
                     skips_remaining,
@@ -1468,10 +1468,10 @@ class MusicBot(discord.Client):
 
     async def cmd_voteskip(self, player, channel, author, message, permissions, voice_channel):
         """
-        Usage:
+        Uitleg:
             {command_prefix}voteskip
 
-        Skips the current song when enough votes are cast, or by the bot owner.
+        Slaat het nummer dat nu speelt over als er genoeg stemmen zijn. Geen instaskip voor beheerder.
         """
 
         if player.is_stopped:
@@ -1506,7 +1506,7 @@ class MusicBot(discord.Client):
         if skips_remaining <= 0:
             player.skip()  # check autopause stuff here
             return Response(
-                'Je stem **{}** overslaan was bevestigd.'
+                'Je stem om **{}** over te slaan was bevestigd.'
                 '\nDe hoeveelheid stemmen om het nummer over te slaan is gehaald.{}'.format(
                     player.current_entry.title,
                     ' Volgende nummer komt eraan!' if player.playlist.peek() else ''
@@ -1518,7 +1518,7 @@ class MusicBot(discord.Client):
         else:
             # TODO: When a song gets skipped, delete the old x needed to skip messages
             return Response(
-                'Je stem **{}** overslaan was bevestigd.'
+                'Je stem om **{}** over te slaan was bevestigd.'
                 '\n**{}** stemmen nog {} nodig om het nummer over te slaan.'.format(
                     player.current_entry.title,
                     skips_remaining,
@@ -1530,11 +1530,11 @@ class MusicBot(discord.Client):
 
     async def cmd_volume(self, message, player, new_volume=None):
         """
-        Usage:
+        Uitleg:
             {command_prefix}volume (+/-)[volume]
 
-        Sets the playback volume. Accepted values are from 1 to 100.
-        Putting + or - before the volume will make the volume change relative to the current volume.
+        Stelt het volume in. Waardes van 1 tot 100.
+        Met een + of - voor het getal maakt de toevoeging relatief.
         """
 
         if not new_volume:
@@ -1572,10 +1572,10 @@ class MusicBot(discord.Client):
 
     async def cmd_queue(self, channel, player):
         """
-        Usage:
+        Uitleg:
             {command_prefix}queue
 
-        Prints the current song queue.
+        Typt de huidige wachtrij.
         """
 
         lines = []
@@ -1622,10 +1622,10 @@ class MusicBot(discord.Client):
 
     async def cmd_q(self, channel, player):
         """
-        Usage:
-            {command_prefix}queue
+        Uitleg:
+            {command_prefix}q
 
-        Prints the current song queue.
+        Typt de huidige wachtrij.
         """
 
         lines = []
@@ -1671,10 +1671,10 @@ class MusicBot(discord.Client):
 
     async def cmd_clean(self, message, channel, server, author, search_range=50):
         """
-        Usage:
-            {command_prefix}clean [range]
+        Uitleg:
+            {command_prefix}clean [hoeveelheid]
 
-        Removes up to [range] messages the bot has posted in chat. Default: 50, Max: 1000
+        Verwijderd [hoeveelehid] berichten die de bot heeft geplaatst. Standaard: 50, Max: 1000
         """
 
         try:
@@ -1832,10 +1832,10 @@ class MusicBot(discord.Client):
 
     async def cmd_perms(self, author, channel, server, permissions):
         """
-        Usage:
+        Uitleg:
             {command_prefix}perms
 
-        Sends the user a list of their permissions.
+        Stuurt de gebruiker een lijst van zijn permissies.
         """
 
         lines = ['Command permissions in %s\n' % server.name, '```', '```']
@@ -1917,23 +1917,54 @@ class MusicBot(discord.Client):
 
 
     async def cmd_disconnect(self, server):
+        """
+        Uitleg:
+            {command_prefix}disconnect
+
+        Haalt de bot uit het spraakkanaal.
+        Beheerders only.
+        """
         await self.disconnect_voice_client(server)
         return Response(":hear_no_evil:", delete_after=20)
 
     async def cmd_restart(self, channel):
+        """
+        Uitleg:
+            {command_prefix}restart
+
+        Herstart de bot.
+        Alleen voor beheerders.
+        Ik zou willen dat dit commando niet nodig was.
+        """
         await self.safe_send_message(channel, ":wave:")
         await self.disconnect_all_voice_clients()
         raise exceptions.RestartSignal
 
     async def cmd_shutdown(self, channel):
+        """
+        Uitleg:
+            {command_prefix}shutdown
+
+        Zet de bot uit.
+        Alleen voor de eigenaar (Auxim) 
+        """
         await self.safe_send_message(channel, ":wave:")
         await self.disconnect_all_voice_clients()
         raise exceptions.TerminateSignal
 
     async def cmd_author(self, message, channel):
+        """
+        Uitleg:
+            {command_prefix}author
+
+        Wie is de persoon die je onder moet spammen als de bot offline gaat.
+        """
         await self.safe_send_message(channel, "Deze bot wordt gedraaid en onderhouden door Auxim. https://github.com/Geoffco-Productions/DJWillex")
 
     async def cmd_spooky(self, message, channel):
+        """
+        :ghost:
+        """
         await self.safe_send_message(channel, ":ghost:")
         await self.safe_send_message(channel, ";play spooky scary skeletoons the living tombstone")
 
