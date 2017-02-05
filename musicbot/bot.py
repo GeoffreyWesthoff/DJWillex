@@ -845,13 +845,21 @@ class MusicBot(discord.Client):
     async def cmd_play(self, player, channel, author, permissions, leftover_args, song_url):
         """
         Uitleg:
-            ;play link
+            ;play linklij
             ;play zoektekst
 
         Voegt een nummer toe aan de wachtrij.  Als je geen link invoert wordt het eerste resultaat van YouTube gepakt.
         """
 
         song_url = song_url.strip('<>')
+        if "youtu" in song_url:
+            pass
+        elif "beatport" in song_url:
+            pass
+        elif "soundcloud" in song_url:
+            pass
+        else:
+            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
 
         if permissions.max_songs and player.playlist.count_for_user(author) >= permissions.max_songs:
             raise exceptions.PermissionsError(
@@ -1966,6 +1974,12 @@ class MusicBot(discord.Client):
         """
         await self.safe_send_message(channel, ":ghost:")
         await self.safe_send_message(channel, ";play spooky scary skeletoons the living tombstone")
+
+    async def cmd_supported(self, message, channel):
+        """
+        Welke sites worden er ondersteund door DJ Willex
+        """
+        await self.safe_send_message(channel, "http://www.geoffreywesthoff.nl/supported-sites-for-dj-willex.html")
 
     async def on_message(self, message):
         await self.wait_until_ready()
