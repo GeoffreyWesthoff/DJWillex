@@ -852,14 +852,15 @@ class MusicBot(discord.Client):
         """
 
         song_url = song_url.strip('<>')
-        if "youtu" in song_url:
-            pass
-        elif "beatport" in song_url:
-            pass
-        elif "soundcloud" in song_url:
-            pass
-        else:
+        if "dumpert" in song_url:
             raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
+        elif "telegraaf" in song_url:
+            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
+        elif "pornhub" in song_url:
+            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
+        else:
+            pass
+
 
         if permissions.max_songs and player.playlist.count_for_user(author) >= permissions.max_songs:
             raise exceptions.PermissionsError(
