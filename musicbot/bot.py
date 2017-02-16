@@ -845,7 +845,7 @@ class MusicBot(discord.Client):
     async def cmd_play(self, player, channel, author, permissions, leftover_args, song_url):
         """
         Uitleg:
-            ;play linklij
+            ;play link
             ;play zoektekst
 
         Voegt een nummer toe aan de wachtrij.  Als je geen link invoert wordt het eerste resultaat van YouTube gepakt.
@@ -1464,10 +1464,10 @@ class MusicBot(discord.Client):
             # TODO: When a song gets skipped, delete the old x needed to skip messages
             return Response(
                 'Je stem om **{}** over te slaan was bevestigd.'
-                '\n**{}** stemmen nog {} nodig om het nummer over te slaan.'.format(
+                '\n**{}** {} nog nodig om het nummer over te slaan.'.format(
                     player.current_entry.title,
                     skips_remaining,
-                    'persoon is' if skips_remaining == 1 else 'mensen zijn'
+                    'stemmen' if skips_remaining == 1 else 'stem'
                 ),
                 reply=True,
                 delete_after=20
@@ -1526,10 +1526,10 @@ class MusicBot(discord.Client):
             # TODO: When a song gets skipped, delete the old x needed to skip messages
             return Response(
                 'Je stem om **{}** over te slaan was bevestigd.'
-                '\n**{}** stemmen nog {} nodig om het nummer over te slaan.'.format(
+                '\n**{}** {} nog nodig om het nummer over te slaan.'.format(
                     player.current_entry.title,
                     skips_remaining,
-                    'persoon is' if skips_remaining == 1 else 'mensen zijn'
+                    'stem' if skips_remaining == 1 else 'stemmen'
                 ),
                 reply=True,
                 delete_after=20
@@ -1976,19 +1976,13 @@ class MusicBot(discord.Client):
         await self.safe_send_message(channel, ":ghost:")
         await self.safe_send_message(channel, ";play spooky scary skeletoons the living tombstone")
 
-    async def cmd_supported(self, message, channel):
-        """
-        Welke sites worden er ondersteund door DJ Willex
-        """
-        await self.safe_send_message(channel, "http://www.geoffreywesthoff.nl/supported-sites-for-dj-willex.html")
-
     async def on_message(self, message):
         await self.wait_until_ready()
 
         message_content = message.content.strip()
         if not message_content.startswith(self.config.command_prefix):
             return
-
+np
         if self.config.bound_channels and message.channel.id not in self.config.bound_channels and not message.channel.is_private:
             return  # if I want to log this I just move it under the prefix check
 

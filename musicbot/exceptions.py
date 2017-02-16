@@ -34,11 +34,11 @@ class WrongEntryTypeError(ExtractionError):
 class PermissionsError(CommandError):
     @property
     def message(self):
-        return "You don't have permission to use that command.\nReason: " + self._message
+        return "Je hebt geen toestemming om dit commando te gebruiken.\n Reden: " + self._message
 
 # Error with pretty formatting for hand-holding users through various errors
 class HelpfulError(MusicbotException):
-    def __init__(self, issue, solution, *, preface="An error has occured:\n", expire_in=0):
+    def __init__(self, issue, solution, *, preface="Een fout is opgetreden:\n", expire_in=0):
         self.issue = issue
         self.solution = solution
         self.preface = preface
