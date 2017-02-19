@@ -853,11 +853,11 @@ class MusicBot(discord.Client):
 
         song_url = song_url.strip('<>')
         if "dumpert" in song_url:
-            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
+            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
         elif "telegraaf" in song_url:
-            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
+            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
         elif "pornhub" in song_url:
-            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar le_spacecookie als deze site toegevoegd zou moeten worden", expire_in=30)
+            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
         else:
             pass
 
@@ -1179,7 +1179,7 @@ class MusicBot(discord.Client):
             raise exceptions.CommandError("Voer alsjeblieft de zoekterm juist in.", expire_in=30)
 
         service = 'youtube'
-        items_requested = 3
+        items_requested = 5
         max_items = 10  # this can be whatever, but since ytdl uses about 1000, a small number might be better
         services = {
             'youtube': 'ytsearch',
@@ -1237,7 +1237,7 @@ class MusicBot(discord.Client):
 
         for e in info['entries']:
             result_message = await self.safe_send_message(channel, "Result %s/%s: %s" % (
-                info['entries'].index(e) + 1, len(info['entries']), e['webpage_url']))
+                info['entries'].index(e) + 1, len(info['entries']), e['<webpage_url>']))
 
             confirm_message = await self.safe_send_message(channel, "Is dit goed? Type `y`, `n` of `exit`")
             response_message = await self.wait_for_message(30, author=author, channel=channel, check=check)
