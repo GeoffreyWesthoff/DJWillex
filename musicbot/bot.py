@@ -1237,7 +1237,7 @@ class MusicBot(discord.Client):
 
         for e in info['entries']:
             result_message = await self.safe_send_message(channel, "Result %s/%s: %s" % (
-                info['entries'].index(e) + 1, len(info['entries']), e['<webpage_url>']))
+                info['entries'].index(e) + 1, len(info['entries']), e['webpage_url']))
 
             confirm_message = await self.safe_send_message(channel, "Is dit goed? Type `y`, `n` of `exit`")
             response_message = await self.wait_for_message(30, author=author, channel=channel, check=check)
@@ -1982,7 +1982,7 @@ class MusicBot(discord.Client):
         message_content = message.content.strip()
         if not message_content.startswith(self.config.command_prefix):
             return
-                
+
         if self.config.bound_channels and message.channel.id not in self.config.bound_channels and not message.channel.is_private:
             return  # if I want to log this I just move it under the prefix check
 
