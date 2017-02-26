@@ -9,6 +9,13 @@ import discord
 import asyncio
 import traceback
 import random
+import operator
+import subprocess
+import urllib.parse
+import urllib.request
+import json
+import hashlib
+import datetime
 
 from discord import utils
 from discord.object import Object
@@ -35,9 +42,8 @@ from .opus_loader import load_opus_lib
 from .constants import VERSION as BOTVERSION
 from .constants import DISCORD_MSG_CHAR_LIMIT, AUDIO_CACHE_PATH
 
-
 load_opus_lib()
-
+startTime = time.time()
 
 class SkipState:
     def __init__(self):
@@ -149,6 +155,24 @@ class MusicBot(discord.Client):
             # TODO: Effort
             await self.cmd_summon(owner.voice_channel, owner, None)
             return owner.voice_channel
+
+    async def uptime(self):
+        timeSeconds = (time.time() - startTime)
+        m, s = divmod(timeSeconds, 60)
+        h, m = divmod(m, 60)
+        string = "%d:%02d:%02d" % (h, m, s)
+        return timeSeconds
+
+    async def _autorestart(self):
+        now = datetime.datetime.now()
+
+        if now.hour == 3 and await self.uptime() > 120:
+            raise exceptions.RestartSignal
+
+        else:
+            await asyncio.sleep(3600)
+            await self._autorestart()
+            return ''
 
     async def _autojoin_channels(self, channels):
         joined_servers = []
@@ -710,6 +734,7 @@ class MusicBot(discord.Client):
             # waitfor + get value
             owner_vc = await self._auto_summon()
 
+
             if owner_vc:
                 print("Done!", flush=True)  # TODO: Change this to "Joined server/channel"
                 if self.config.auto_playlist:
@@ -717,9 +742,87 @@ class MusicBot(discord.Client):
                     await self.on_player_finished_playing(await self.get_player(owner_vc))
             else:
                 print("Owner not found in a voice channel, could not autosummon.")
-
+        await self._autorestart()
         print()
         # t-t-th-th-that's all folks!
+
+#    def write_lastfm_users(self, users):
+#        with open('lastfm.py', 'w') as file:
+#        	json.dump(users, file)
+#
+#    async def cmd_lastfm(self, channel, author, username = ''):
+#        if not username:
+#            await self.safe_send_message(channel, "Je username is niet ingevuld, gebruik `lastfm username`.")
+#        else:
+#            users[author.id] = username
+#            self.write_lastfm_users(users)
+#
+#    async def get_lastfm_users(self):
+#            if os.path.isfile('lastfm.py'):
+#                with open('lastfm.py') as file:
+#                    try:
+#                        return json.load(file)
+#                    except:
+#                        with open('lastfm.py', 'w') as file:
+#                            selfjson.dump({}, file)
+
+#    async def cmd_scrobble(self, channel, player):
+#        split_string = player.current_entry.title.split('-')
+#        artist = split_string[0]
+#        track = split_string[1]
+#        LASTFM_SK = self.get_session_lastfm()
+#        LASTFM_APISIG = hashlib.md5('LASTFM_APISIG')
+#        url = 'http://ws.audioscrobbler.com/2.0/?method=track.scrobble&artist={0}&track={1}&timestamp={1}&api_key={2}&api_sig={3}&sk={4}'.format(artist, track, int(time.time()), LASTFM_APIKEY, LASTFM_APISIG, LASTFM_SK)
+#        json = await post_json_data(url)
+
+    async def cmd_spotify(self, channel, player):
+        name = urllib.parse.quote(player.current_entry.title)
+        url = 'https://api.spotify.com/v1/search?q={0}&type=track&limit=1'.format(name)
+        json = await self.get_json_data(url)
+        try:
+            tracks = json.get("tracks", None)
+            items = tracks.get("items", None)
+            spotify_url = items[0]['external_urls']['spotify']
+            await self.safe_send_message(channel, spotify_url)
+        except Exception as e:
+            await self.safe_send_message(channel,'Helaas hebben we het nummer niet kunnen vinden op Spotify')
+
+#    async def get_token_lasfm(self):
+#        LASTFM_APISIGTOKEN = hashlib.md5('LASTFM_APISIG')
+#        url = 'http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key={0}&api_sig={1}&format=json'.format=(LASTFM_APIKEY,LASTFM_APISIGTOKEN)
+#        async with aiohttp.get(url) as data_token:
+#            token = await data_token.json()
+#            return token
+#    async def get_session_lastfm(self):
+#        url = 'http://ws.audioscrobbler.com/2.0/?method=auth.getsession&api_key={0}&token={1}&api_sig={2}&format=json'.format=(LASTFM_APIKEY, self.get_token_lastfm(),LASTFM_APISIGSESSION)
+#        LASTFM_APISIGSESSION = hashlib.md5('LASTFM_APISIG')
+#        async with aiohttp.get(url) as data_sessionkey:
+#            session_key = await data_sessionkey.json()
+#            return session_key
+
+    async def get_html_data(self, url):
+        async with aiohttp.get(url) as temp:
+        	# data = await temp.json()
+        	return temp
+
+    async def get_json_data(self, url):
+        async with aiohttp.get(url) as temp:
+        	data = await temp.json()
+        	return data
+
+    async def post_json_data(self, url):
+        async with aiohttp.post(url) as temp:
+            data = await temp.json()
+            return data
+
+    async def cmd_uptime(self, channel):
+        timeSeconds = (time.time() - startTime)
+        m, s = divmod(timeSeconds, 60)
+        h, m = divmod(m, 60)
+        string = "%d:%02d:%02d" % (h, m, s)
+
+        await self.safe_send_message(channel, string)
+        return timeSeconds
 
     async def cmd_help(self, command=None):
         """
@@ -2170,7 +2273,6 @@ class MusicBot(discord.Client):
             self.safe_print("[Servers] \"%s\" veranderden van regio: %s -> %s" % (after.name, before.region, after.region))
 
             await self.reconnect_voice_client(after)
-
 
 if __name__ == '__main__':
     bot = MusicBot()
