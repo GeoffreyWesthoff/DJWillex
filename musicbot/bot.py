@@ -783,9 +783,9 @@ class MusicBot(discord.Client):
             tracks = json.get("tracks", None)
             items = tracks.get("items", None)
             spotify_url = items[0]['external_urls']['spotify']
-            await self.safe_send_message(channel, spotify_url)
+            return Response(spotify_url, delete_after=20)
         except Exception as e:
-            await self.safe_send_message(channel,'Helaas hebben we het nummer niet kunnen vinden op Spotify')
+            return Response('Helaas hebben we het nummer niet kunnen vinden op Spotify', delete_after=20)
 
 #    async def get_token_lasfm(self):
 #        LASTFM_APISIGTOKEN = hashlib.md5('LASTFM_APISIG')
@@ -820,9 +820,7 @@ class MusicBot(discord.Client):
         m, s = divmod(timeSeconds, 60)
         h, m = divmod(m, 60)
         string = "%d:%02d:%02d" % (h, m, s)
-
-        await self.safe_send_message(channel, string)
-        return timeSeconds
+        return Response(string, delete_after=10)
 
     async def cmd_help(self, command=None):
         """
@@ -944,6 +942,42 @@ class MusicBot(discord.Client):
 
         except:
             raise exceptions.CommandError('Invalid URL provided:\n{}\n'.format(server_link), expire_in=30)
+    async def cmd_playspotify(self, channel, song_url):
+        open_url = song_url.replace('open', 'play')
+        spotify_id = open_url.replace('https://play.spotify.com/track/', '')
+        url = 'https://api.spotify.com/v1/tracks/{0}'.format(spotify_id)
+        json = await self.get_json_data(url)
+        try:
+            album = json.get('album', None)
+            artists = album.get('artists', None)
+            artist_name = artists[0]['name']
+            print(artist_name)
+            track_name = json.get('name', None)
+            print(track_name)
+            play_command = ';play {0} {1}'.format(artist_name, track_name)
+            message = await self.send_message(channel, play_command)
+            await self.delete_message(message)
+        except Exception as e:
+            return Response('Er is een fout opgetreden bij het afspelen van de Spotify link', delete_after=20)
+
+    async def cmd_ps(self, channel, song_url):
+        open_url = song_url.replace('open', 'play')
+        spotify_id = open_url.replace('https://play.spotify.com/track/', '')
+        url = 'https://api.spotify.com/v1/tracks/{0}'.format(spotify_id)
+        json = await self.get_json_data(url)
+        try:
+            album = json.get('album', None)
+            artists = album.get('artists', None)
+            artist_name = artists[0]['name']
+            print(artist_name)
+            track_name = json.get('name', None)
+            print(track_name)
+            play_command = ';play {0} {1}'.format(artist_name, track_name)
+            message = await self.send_message(channel, play_command)
+            await self.delete_message(message)
+        except Exception as e:
+            return Response('Er is een fout opgetreden bij het afspelen van de Spotify link', delete_after=20)
+
 
     async def cmd_play(self, player, channel, author, permissions, leftover_args, song_url):
         """
@@ -2070,14 +2104,15 @@ class MusicBot(discord.Client):
 
         Wie de persoon is die je onder moet spammen als de bot offline gaat.
         """
-        await self.safe_send_message(channel, "Deze bot wordt gedraaid en onderhouden door Auxim. https://github.com/Geoffco-Productions/DJWillex")
+        return Response ("Deze bot wordt gedraaid en onderhouden door Auxim. Met hulp van mijn maat Pim. https://github.com/GeoffreyWesthoff/DJWillex", delete_after=20)
 
     async def cmd_spooky(self, message, channel):
         """
         boo
         """
-        await self.safe_send_message(channel, ":ghost:")
-        await self.safe_send_message(channel, ";play spooky scary skeletoons the living tombstone")
+        message = await self.send_message(channel, ";play spooky scary skeletoons the living tombstone")
+        await self.delete_message(message)
+        return Response(":ghost:", delete_after=20)
 
     async def on_message(self, message):
         await self.wait_until_ready()
