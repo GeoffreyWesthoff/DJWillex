@@ -960,7 +960,7 @@ class MusicBot(discord.Client):
         except Exception as e:
             return Response('Er is een fout opgetreden bij het afspelen van de Spotify link', delete_after=20)
 
-    # alias for 'playspotify' 
+    # alias for 'playspotify'
     cmd_ps = cmd_playspotify
 
     async def cmd_play(self, player, channel, author, permissions, leftover_args, song_url):
@@ -973,14 +973,11 @@ class MusicBot(discord.Client):
         """
 
         song_url = song_url.strip('<>')
-        if "dumpert" in song_url:
-            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
-        elif "telegraaf" in song_url:
-            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
-        elif "pornhub" in song_url:
-            raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
-        else:
-            pass
+        sites = ['dumpert', 'redtube', 'telegraaf', 'telegraaf']
+        for site in sites:
+            if sites in song_url:
+            else:
+                pass
 
 
         if permissions.max_songs and player.playlist.count_for_user(author) >= permissions.max_songs:
@@ -1746,7 +1743,7 @@ class MusicBot(discord.Client):
         message = '\n'.join(lines)
         return Response(message, delete_after=30)
 
-    # alias for 'queue' 
+    # alias for 'queue'
     cmd_q = cmd_queue
 
     async def cmd_clean(self, message, channel, server, author, search_range=50):
