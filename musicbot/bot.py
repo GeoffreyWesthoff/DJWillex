@@ -960,24 +960,8 @@ class MusicBot(discord.Client):
         except Exception as e:
             return Response('Er is een fout opgetreden bij het afspelen van de Spotify link', delete_after=20)
 
-    async def cmd_ps(self, channel, song_url):
-        open_url = song_url.replace('open', 'play')
-        spotify_id = open_url.replace('https://play.spotify.com/track/', '')
-        url = 'https://api.spotify.com/v1/tracks/{0}'.format(spotify_id)
-        json = await self.get_json_data(url)
-        try:
-            album = json.get('album', None)
-            artists = album.get('artists', None)
-            artist_name = artists[0]['name']
-            print(artist_name)
-            track_name = json.get('name', None)
-            print(track_name)
-            play_command = ';play {0} {1}'.format(artist_name, track_name)
-            message = await self.send_message(channel, play_command)
-            await self.delete_message(message)
-        except Exception as e:
-            return Response('Er is een fout opgetreden bij het afspelen van de Spotify link', delete_after=20)
-
+    # alias for 'playspotify' 
+    cmd_ps = cmd_playspotify
 
     async def cmd_play(self, player, channel, author, permissions, leftover_args, song_url):
         """
@@ -1762,56 +1746,8 @@ class MusicBot(discord.Client):
         message = '\n'.join(lines)
         return Response(message, delete_after=30)
 
-
-
-    async def cmd_q(self, channel, player):
-        """
-        Uitleg:
-            ;q
-
-        Geeft de huidige wachtrij weer.
-        """
-
-        lines = []
-        unlisted = 0
-        andmoretext = '* ... en %s meer*' % ('x' * len(player.playlist.entries))
-
-        if player.current_entry:
-            song_progress = str(timedelta(seconds=player.progress)).lstrip('0').lstrip(':')
-            song_total = str(timedelta(seconds=player.current_entry.duration)).lstrip('0').lstrip(':')
-            prog_str = '`[%s/%s]`' % (song_progress, song_total)
-
-            if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
-                lines.append("Speelt nu: **%s** toegevoegd door **%s** %s\n" % (
-                    player.current_entry.title, player.current_entry.meta['author'].name, prog_str))
-            else:
-                lines.append("Speelt nu: **%s** %s\n" % (player.current_entry.title, prog_str))
-
-        for i, item in enumerate(player.playlist, 1):
-            if item.meta.get('channel', False) and item.meta.get('author', False):
-                nextline = '`{}.` **{}** toegevoegd door **{}**'.format(i, item.title, item.meta['author'].name).strip()
-            else:
-                nextline = '`{}.` **{}**'.format(i, item.title).strip()
-
-            currentlinesum = sum(len(x) + 1 for x in lines)  # +1 is for newline char
-
-            if currentlinesum + len(nextline) + len(andmoretext) > DISCORD_MSG_CHAR_LIMIT:
-                if currentlinesum + len(andmoretext):
-                    unlisted += 1
-                    continue
-
-            lines.append(nextline)
-
-        if unlisted:
-            lines.append('\n*... en %s meer*' % unlisted)
-
-        if not lines:
-            lines.append(
-                'Er staan geen nummers in de wachtrij! Voeg iets toe met ;play.'.format(self.config.command_prefix))
-
-        message = '\n'.join(lines)
-        return Response(message, delete_after=30)
-
+    # alias for 'queue' 
+    cmd_q = cmd_queue
 
     async def cmd_clean(self, message, channel, server, author, search_range=50):
         """
