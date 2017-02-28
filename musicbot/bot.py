@@ -975,7 +975,7 @@ class MusicBot(discord.Client):
         song_url = song_url.strip('<>')
         sites = ['dumpert', 'redtube', 'telegraaf', 'telegraaf']
         for site in sites:
-            if sites in song_url:
+            if site in song_url:
                 raise exceptions.CommandError("De site die je wilt gebruiken is niet toegestaan, stuur een PM naar Auxim als deze site toegevoegd zou moeten worden", expire_in=30)
             else:
                 pass
