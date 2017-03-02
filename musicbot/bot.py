@@ -44,6 +44,7 @@ from .constants import DISCORD_MSG_CHAR_LIMIT, AUDIO_CACHE_PATH
 
 load_opus_lib()
 startTime = time.time()
+has_restarted = 1
 
 class SkipState:
     def __init__(self):
@@ -158,19 +159,18 @@ class MusicBot(discord.Client):
 
     async def uptime(self):
         timeSeconds = (time.time() - startTime)
-        m, s = divmod(timeSeconds, 60)
-        h, m = divmod(m, 60)
-        string = "%d:%02d:%02d" % (h, m, s)
         return timeSeconds
 
     async def _autorestart(self):
         now = datetime.datetime.now()
-
-        if now.hour == 3 and await self.uptime() > 120:
+        global has_restarted
+        if now.hour == 3 and has_restarted == 0:
+            has_restarted = 1
             raise exceptions.RestartSignal
 
         else:
             await asyncio.sleep(3600)
+            has_restarted = 0
             await self._autorestart()
             return ''
 
