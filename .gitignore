@@ -10,3 +10,9 @@ config/options.ini
 config/permissions.ini
 
 config/autoplaylist\.txt
+
+config/cachet\.ini
+
+config/\.DS_Store
+
+\.DS_Store

@@ -16,6 +16,8 @@ import urllib.request
 import json
 import hashlib
 import datetime
+import cachetclient.cachet as cachet
+import configparser
 
 from discord import utils
 from discord.object import Object
@@ -42,9 +44,13 @@ from .opus_loader import load_opus_lib
 from .constants import VERSION as BOTVERSION
 from .constants import DISCORD_MSG_CHAR_LIMIT, AUDIO_CACHE_PATH
 
+
 load_opus_lib()
 startTime = time.time()
 has_restarted = 1
+
+config = configparser.ConfigParser()
+config.read('config/cachet.ini')
 
 class SkipState:
     def __init__(self):
@@ -157,6 +163,8 @@ class MusicBot(discord.Client):
             await self.cmd_summon(owner.voice_channel, owner, None)
             return owner.voice_channel
 
+
+
     async def uptime(self):
         timeSeconds = (time.time() - startTime)
         return timeSeconds
@@ -234,6 +242,7 @@ class MusicBot(discord.Client):
         else:
             raise exceptions.PermissionsError(
                 "Je kunt dit commando niet gebruiken als je niet in een spraakkanaal zit (%s)" % vc.name, expire_in=30)
+            return False
 
     async def generate_invite_link(self, *, permissions=None, server=None):
         if not self.cached_client_id:
@@ -298,6 +307,39 @@ class MusicBot(discord.Client):
                             "Dit is waarschijnlijk een systeem of anti-virus firewall.  "
                         )
 
+            return voice_client
+
+    async def get_voice_client_storing(self, channel):
+        if isinstance(channel, Object):
+            channel = self.get_channel(channel.id)
+
+        if getattr(channel, 'type', ChannelType.text) != ChannelType.voice:
+            raise AttributeError('Het aangegeven kanaal moet een spraakkanaal zijn.')
+
+        with await self.voice_client_connect_lock:
+            server = channel.server
+            if server.id in self.the_voice_clients:
+                return self.the_voice_clients[server.id]
+
+            s_id = self.ws.wait_for('VOICE_STATE_UPDATE', lambda d: d.get('user_id') == self.user.id)
+            _voice_data = self.ws.wait_for('VOICE_SERVER_UPDATE', lambda d: True)
+
+            await self.ws.voice_state(server.id, channel.id)
+
+            s_id_data = await asyncio.wait_for(s_id, timeout=10, loop=self.loop)
+            voice_data = await asyncio.wait_for(_voice_data, timeout=10, loop=self.loop)
+            session_id = s_id_data.get('session_id')
+
+            kwargs = {
+                'user': self.user,
+                'channel': channel,
+                'data': voice_data,
+                'loop': self.loop,
+                'session_id': session_id,
+                'main_ws': self.ws
+            }
+            voice_client = VoiceClient(**kwargs)
+            self.the_voice_clients[server.id] = voice_client
             return voice_client
 
     async def mute_voice_client(self, channel, mute):
@@ -617,6 +659,26 @@ class MusicBot(discord.Client):
         for vc in self.the_voice_clients.values():
             vc.main_ws = self.ws
 
+    async def storing(self):
+        cachet_channel = config['cachet']['channel']
+        endpoint = config['cachet']['endpoint']
+        api_token = config['cachet']['api_token']
+        ID = config['cachet']['ID']
+        answer = await self.get_voice_client_storing(self.get_channel(cachet_channel))
+        answer2 = answer.is_connected()
+        if str(answer2) == 'True':
+            components = cachet.Components(endpoint=endpoint, api_token = api_token)
+            components.put(id=int(ID), status = 1)
+            print('Geen storing')
+            await asyncio.sleep(20)
+            await self.storing()
+        else:
+            components = cachet.Components(endpoint=endpoint, api_token=api_token)
+            components.put(id=int(ID), status=3)
+            print('Mogelijke storing')
+            await asyncio.sleep(20)
+            await self.storing()
+
     async def on_ready(self):
         print('\rConnected!  Musicbot v%s\n' % BOTVERSION)
 
@@ -742,8 +804,7 @@ class MusicBot(discord.Client):
                     await self.on_player_finished_playing(await self.get_player(owner_vc))
             else:
                 print("Owner not found in a voice channel, could not autosummon.")
-        await self._autorestart()
-        print()
+        await self.storing()
         # t-t-th-th-that's all folks!
 
 #    def write_lastfm_users(self, users):
@@ -2242,6 +2303,8 @@ class MusicBot(discord.Client):
             self.safe_print("[Servers] \"%s\" veranderden van regio: %s -> %s" % (after.name, before.region, after.region))
 
             await self.reconnect_voice_client(after)
+
+
 
 if __name__ == '__main__':
     bot = MusicBot()
