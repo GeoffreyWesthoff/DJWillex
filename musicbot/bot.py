@@ -9,8 +9,6 @@ import discord
 import asyncio
 import traceback
 import random
-import operator
-import subprocess
 import urllib.parse
 import urllib.request
 import json
@@ -45,12 +43,13 @@ from .constants import VERSION as BOTVERSION
 from .constants import DISCORD_MSG_CHAR_LIMIT, AUDIO_CACHE_PATH
 
 
+
 load_opus_lib()
 startTime = time.time()
 has_restarted = 1
 
-config = configparser.ConfigParser()
-config.read('config/cachet.ini')
+cachet_config = configparser.ConfigParser()
+cachet_config.read("cachet.ini")
 
 class SkipState:
     def __init__(self):
@@ -69,7 +68,6 @@ class SkipState:
         self.skippers.add(skipper)
         self.skip_msgs.add(msg)
         return self.skip_count
-
 
 class Response:
     def __init__(self, content, reply=False, delete_after=0):
@@ -660,20 +658,22 @@ class MusicBot(discord.Client):
             vc.main_ws = self.ws
 
     async def storing(self):
-        cachet_channel = config['cachet']['channel']
-        endpoint = config['cachet']['endpoint']
-        api_token = config['cachet']['api_token']
-        ID = config['cachet']['ID']
-        answer = await self.get_voice_client_storing(self.get_channel(cachet_channel))
+        channel = cachet_config['CACHET']['CHANNEL']
+        answer = await self.get_voice_client_storing(self.get_channel(channel))
         answer2 = answer.is_connected()
         if str(answer2) == 'True':
-            components = cachet.Components(endpoint=endpoint, api_token = api_token)
+            ENDPOINT  = cachet_config['CACHET']['ENDPOINT']
+            API_TOKEN = cachet_config['CACHET']['API_TOKEN']
+            components = cachet.Components(endpoint=ENDPOINT, api_token = API_TOKEN)
+            ID = cachet_config['CACHET']['ID']
             components.put(id=int(ID), status = 1)
             print('Geen storing')
             await asyncio.sleep(20)
             await self.storing()
         else:
-            components = cachet.Components(endpoint=endpoint, api_token=api_token)
+            ENDPOINT = cachet_config['CACHET']['ENDPOINT']
+            API_TOKEN = cachet_config['CACHET']['API_TOKEN']
+            components = cachet.Components(endpoint=ENDPOINT, api_token=API_TOKEN)
             components.put(id=int(ID), status=3)
             print('Mogelijke storing')
             await asyncio.sleep(20)
@@ -804,7 +804,11 @@ class MusicBot(discord.Client):
                     await self.on_player_finished_playing(await self.get_player(owner_vc))
             else:
                 print("Owner not found in a voice channel, could not autosummon.")
-        await self.storing()
+        CACHET_ON = cachet_config['CACHET']['CACHET_ON']
+        if CACHET_ON == 'True':
+            await self.storing()
+        else:
+            pass
         # t-t-th-th-that's all folks!
 
 #    def write_lastfm_users(self, users):
@@ -1206,9 +1210,14 @@ class MusicBot(discord.Client):
 
             if random.randrange(1,20) == 10:
                 reply_text = ("Rustaagh, ben al bezig **%s** in de lijst te zetten. Positie in wachtrij: %s")
+                waitlist_text = ("Rustaagh, je nummer wordt zo in de lijst gezet. Positie in wachtrij: " + str(position))
                 # lol --Tony
+            elif random.randrange(1,20) == 20:
+                reply_text = ("Soms als ik me alleen voel weet ik dat TonyQuark er altijd voor me is... Hoe dan ook, **%s** staat nu in de lijst. Positie in wachtrij: %s")
+                waitlist_text = ("Soms als ik me alleen voel weet ik dat TonyQuark er altijd voor me is... Hoe dan ook, je nummer staat in de lijst. Positie in wachtrij: " + str(position))
             else:
                 reply_text = ("**%s** wordt straks afgespeeld. Positie in wachtrij: %s")
+                waitlist_text = ("Je nummer staat in de lijst. Positie in wachtrij: " + str(position))
             btext = entry.title
 
         if position == 1 and player.is_stopped:
@@ -1224,8 +1233,24 @@ class MusicBot(discord.Client):
                 time_until = ''
 
             reply_text %= (btext, position, time_until)
+        em = discord.Embed(title=entry.title, description=waitlist_text, colour=0xDEADBF)
+        em.set_author(name=author,icon_url=author.avatar_url)
+        entry_name = urllib.parse.quote(entry.title)
+        spotify_request = 'https://api.spotify.com/v1/search?q={0}&type=track&limit=1'.format(entry_name)
+        json = await self.get_json_data(spotify_request)
+        try:
+            tracks = json.get("tracks", None)
+            items = tracks.get("items", None)
+            images = items[0]['album']['images']
+            image_url = images[0]['url']
+        except Exception as e:
+            image_url = ""
 
-        return Response(reply_text, delete_after=30)
+        em.set_thumbnail(url=image_url)
+        message = await self.send_message(channel, embed=em)
+        await asyncio.sleep(20)
+        await self.safe_delete_message(message)
+
 
     async def _cmd_play_playlist_async(self, player, channel, author, permissions, playlist_url, extractor_type):
         """
