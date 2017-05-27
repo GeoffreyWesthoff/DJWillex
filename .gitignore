@@ -16,3 +16,5 @@ config/cachet\.ini
 config/\.DS_Store
 
 \.DS_Store
+
+cachet\.ini

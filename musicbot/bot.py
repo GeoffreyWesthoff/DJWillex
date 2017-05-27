@@ -1020,8 +1020,7 @@ class MusicBot(discord.Client):
             track_name = json.get('name', None)
             print(track_name)
             play_command = ';play {0} {1}'.format(artist_name, track_name)
-            message = await self.send_message(channel, play_command)
-            await self.delete_message(message)
+            return Response(play_command, delete_after=1)
         except Exception as e:
             return Response('Er is een fout opgetreden bij het afspelen van de Spotify link', delete_after=20)
 
@@ -1238,19 +1237,45 @@ class MusicBot(discord.Client):
         entry_name = urllib.parse.quote(entry.title)
         spotify_request = 'https://api.spotify.com/v1/search?q={0}&type=track&limit=1'.format(entry_name)
         json = await self.get_json_data(spotify_request)
+        if song_url.startswith('youtu.be') or song_url.startswith('youtube.com'):
+            em.set_footer(text='https://' + song_url)
+        elif song_url.startswith('https://www.youtube.com') or song_url.startswith('https://youtu.be'):
+            em.set_footer(text=song_url)
+        elif song_url.startswith('https://') or song_url.startswith('http://'):
+            em.set_footer(text=song_url)
+        else:
+            em.set_footer(text='https://youtu.be/' + song_url)
         try:
             tracks = json.get("tracks", None)
             items = tracks.get("items", None)
             images = items[0]['album']['images']
             image_url = images[0]['url']
         except Exception as e:
-            image_url = ""
+            if song_url.startswith('https://www.youtube.com') or song_url.startswith('youtube.com'):
+                youtubeurl_parse = song_url.rsplit('=',1)[1]
+                print(youtubeurl_parse)
+                print(youtubeurl_parse[0])
+                youtubeurl = ('http://img.youtube.com/vi/'+ youtubeurl_parse +'/0.jpg')
+                print(youtubeurl)
+                image_url = youtubeurl
+            elif song_url.startswith('https://www.youtu.be') or song_url.startswith('youtu.be'):
+                youtubeurl_parse = song_url.rsplit('/', 1)[1]
+                print(youtubeurl_parse)
+                print(youtubeurl_parse[0])
+                youtubeurl = ('http://img.youtube.com/vi/' + youtubeurl_parse + '/0.jpg')
+                print(youtubeurl)
+                image_url = youtubeurl
+            else:
+                youtube_url = ('http://img.youtube.com/vi/' + song_url + '/0.jpg')
+                image_url = youtube_url
 
         em.set_thumbnail(url=image_url)
         message = await self.send_message(channel, embed=em)
-        await asyncio.sleep(20)
+        await asyncio.sleep(30)
         await self.safe_delete_message(message)
+        return Response("🚮", delete_after=1)
 
+    cmd_p = cmd_play
 
     async def _cmd_play_playlist_async(self, player, channel, author, permissions, playlist_url, extractor_type):
         """
