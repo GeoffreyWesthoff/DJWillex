@@ -516,7 +516,7 @@ class MusicBot(discord.Client):
         if self.user.bot:
             activeplayers = sum(1 for p in self.players.values() if p.is_playing)
             if activeplayers > 1:
-                game = discord.Game(name="muziek op %s servers" % activeplayers)
+                game = discord.Game(name="muziek op %s servers" % activeplayers,type=0)
                 entry = None
 
             elif activeplayers == 1:
@@ -527,9 +527,9 @@ class MusicBot(discord.Client):
             prefix = u'\u275A\u275A ' if is_paused else ''
 
             name = u'{}{}'.format(prefix, entry.title)[:128]
-            game = discord.Game(name=name)
+            game = discord.Game(name=name,type=0)
 
-        await self.change_status(game)
+        await self.change_presence(game=game)
 
 
     async def safe_send_message(self, dest, content, *, tts=False, expire_in=0, also_delete=None, quiet=False):
@@ -1255,18 +1255,18 @@ class MusicBot(discord.Client):
                 youtubeurl_parse = song_url.rsplit('=',1)[1]
                 print(youtubeurl_parse)
                 print(youtubeurl_parse[0])
-                youtubeurl = ('http://img.youtube.com/vi/'+ youtubeurl_parse +'/0.jpg')
+                youtubeurl = ('http://img.youtube.com/vi/'+ youtubeurl_parse +'/mqdefault.jpg')
                 print(youtubeurl)
                 image_url = youtubeurl
             elif song_url.startswith('https://www.youtu.be') or song_url.startswith('youtu.be'):
                 youtubeurl_parse = song_url.rsplit('/', 1)[1]
                 print(youtubeurl_parse)
                 print(youtubeurl_parse[0])
-                youtubeurl = ('http://img.youtube.com/vi/' + youtubeurl_parse + '/0.jpg')
+                youtubeurl = ('http://img.youtube.com/vi/' + youtubeurl_parse + '/mqdefault.jpg')
                 print(youtubeurl)
                 image_url = youtubeurl
             else:
-                youtube_url = ('http://img.youtube.com/vi/' + song_url + '/0.jpg')
+                youtube_url = ('http://img.youtube.com/vi/' + song_url + '/mqdefault.jpg')
                 image_url = youtube_url
 
         em.set_thumbnail(url=image_url)
@@ -1648,6 +1648,7 @@ class MusicBot(discord.Client):
             if player.playlist.peek():
                 if player.playlist.peek()._is_downloading:
                     # print(player.playlist.peek()._waiting_futures[0].__dict__)
+                    em2 = discord.Embed(title=message,description=message,colour=0xDEADBF)
                     return Response("Het volgende nummer (%s) is aan het downloaden. Een ogenblik geduld alsjeblieft." % player.playlist.peek().title)
 
                 elif player.playlist.peek().is_downloaded:
@@ -1692,6 +1693,7 @@ class MusicBot(discord.Client):
 
         else:
             # TODO: When a song gets skipped, delete the old x needed to skip messages
+            
             return Response(
                 'Je stem om **{}** over te slaan was bevestigd.'
                 '\n**{}** {} nog nodig om het nummer over te slaan.'.format(
@@ -1703,6 +1705,7 @@ class MusicBot(discord.Client):
                 delete_after=20
             )
 
+    cmd_opgekankerd = cmd_skip
     async def cmd_voteskip(self, player, channel, author, message, permissions, voice_channel):
         """
         Uitleg:
@@ -1807,7 +1810,7 @@ class MusicBot(discord.Client):
                 raise exceptions.CommandError(
                     'Onmogelijke verandering van volume: {}%. Geef een waarde tussen 0 en 100 op.'.format(new_volume), expire_in=20)
 
-    async def cmd_queue(self, channel, player):
+    async def cmd_queue(self, channel, player, author):
         """
         Uitleg:
             ;queue
@@ -1816,6 +1819,9 @@ class MusicBot(discord.Client):
         """
 
         lines = []
+        now_playing_queue = 'Er staan geen nummers in de wachtrij! Voeg iets toe met ;play.'
+        queuelist = []
+        queue_message = "Er staan geen nummers in de wachtrij!"
         unlisted = 0
         andmoretext = '* ... en %s meer*' % ('x' * len(player.playlist.entries))
 
@@ -1825,8 +1831,9 @@ class MusicBot(discord.Client):
             prog_str = '`[%s/%s]`' % (song_progress, song_total)
 
             if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
-                lines.append("Speelt nu: **%s** toegevoegd door **%s** %s\n" % (
+                now_playing_queue = ("**%s** toegevoegd door **%s** %s\n" % (
                     player.current_entry.title, player.current_entry.meta['author'].name, prog_str))
+                title = 'Speelt nu:'
             else:
                 lines.append("Speelt nu: **%s** %s\n" % (player.current_entry.title, prog_str))
 
@@ -1842,8 +1849,8 @@ class MusicBot(discord.Client):
                 if currentlinesum + len(andmoretext):
                     unlisted += 1
                     continue
-
-            lines.append(nextline)
+            queuelist.append(nextline)
+            queue_message = '\n'.join(queuelist)
 
         if unlisted:
             lines.append('\n*... en %s meer*' % unlisted)
@@ -1851,9 +1858,19 @@ class MusicBot(discord.Client):
         if not lines:
             lines.append(
                 'Er staan geen nummers in de wachtrij! Voeg iets toe met ;play.'.format(self.config.command_prefix))
+            title = 'Wachtrij:'
 
         message = '\n'.join(lines)
-        return Response(message, delete_after=30)
+        if now_playing_queue is not "Er staan geen nummers in de wachtrij! Voeg iets toe met ;play.":
+            title = 'Speelt nu:'
+        em1 = discord.Embed(title=title, description=now_playing_queue, colour = 0xDEADBF)
+        if title == 'Speelt nu:':
+            em1.add_field(name='Wachtrij: ',value=queue_message)
+        em1.set_author(name=author, icon_url=author.avatar_url)
+        discord_message = await self.send_message(channel, embed=em1)
+        await asyncio.sleep(30)
+        await self.safe_delete_message(discord_message)
+        return Response("🚮", delete_after=1)
 
     # alias for 'queue'
     cmd_q = cmd_queue
