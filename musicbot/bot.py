@@ -117,7 +117,7 @@ class MusicBot(discord.Client):
             if not orig_msg or orig_msg.author.id == self.config.owner_id:
                 return await func(self, *args, **kwargs)
             else:
-                raise exceptions.PermissionsError("alleen de eigenaar mag dit commando gebruiken", expire_in=30)
+                raise exceptions.PermissionsError("Alleen de eigenaar mag dit commando gebruiken", expire_in=30)
 
         return wrapper
 
@@ -156,7 +156,7 @@ class MusicBot(discord.Client):
     async def _auto_summon(self):
         owner = self._get_owner(voice=True)
         if owner:
-            self.safe_print("Eigenaar gevonden in \"%s\", probeer te joinen..." % owner.voice_channel.name)
+            self.safe_print("Eigenaar gevonden in \"%s\", trachten om het kanaal te betreden..." % owner.voice_channel.name)
             # TODO: Effort
             await self.cmd_summon(owner.voice_channel, owner, None)
             return owner.voice_channel
@@ -239,7 +239,7 @@ class MusicBot(discord.Client):
             return True
         else:
             raise exceptions.PermissionsError(
-                "Je kunt dit commando niet gebruiken als je niet in een spraakkanaal zit (%s)" % vc.name, expire_in=30)
+                "Je kan dit commando niet gebruiken als je niet in een spraakkanaal zit (%s)" % vc.name, expire_in=30)
             return False
 
     async def generate_invite_link(self, *, permissions=None, server=None):
@@ -254,7 +254,7 @@ class MusicBot(discord.Client):
             channel = self.get_channel(channel.id)
 
         if getattr(channel, 'type', ChannelType.text) != ChannelType.voice:
-            raise AttributeError('Het aangegeven kanaal moet een spraakkanaal zijn.')
+            raise AttributeError('Het opgegeven kanaal moet een spraakkanaal zijn.')
 
         with await self.voice_client_connect_lock:
             server = channel.server
@@ -366,7 +366,7 @@ class MusicBot(discord.Client):
         try:
             await vc.disconnect()
         except:
-            print("Fout: verbinding verbroken tijdens opnieuw proberen te verbinden.")
+            print("Fout: de verbinding is verbroken tijdens het opnieuw proberen te verbinden.")
             traceback.print_exc()
 
         await asyncio.sleep(0.1)
@@ -486,7 +486,7 @@ class MusicBot(discord.Client):
 
                 if not info:
                     self.autoplaylist.remove(song_url)
-                    self.safe_print("[Info] Verwijderd onspeelbaar lied uit autoplaylist: %s" % song_url)
+                    self.safe_print("[Info] Onspeelbaar nummer uit autoplaylist verwijderd: %s" % song_url)
                     write_file(self.config.auto_playlist_file, self.autoplaylist)
                     continue
 
@@ -504,7 +504,7 @@ class MusicBot(discord.Client):
                 break
 
             if not self.autoplaylist:
-                print("[Waarschuwing] Geen afspeelbare liedjes in autoplaylist, bot schakelt zich uit.")
+                print("[Waarschuwing] Geen afspeelbare nummers in autoplaylist, bot schakelt zich uit.")
                 self.config.auto_playlist = False
 
     async def on_player_entry_added(self, playlist, entry, **_):
@@ -920,7 +920,7 @@ class MusicBot(discord.Client):
 
             helpmsg += ", ".join(commands)
             helpmsg += "```"
-            helpmsg += "https://github.com/Geoffco-Productions/DJWillex"
+            helpmsg += "https://github.com/GeoffreyWesthoff/DJWillex"
 
             return Response(helpmsg, reply=True, delete_after=60)
 
@@ -1047,7 +1047,7 @@ class MusicBot(discord.Client):
 
         if permissions.max_songs and player.playlist.count_for_user(author) >= permissions.max_songs:
             raise exceptions.PermissionsError(
-                "Je hebt de limiet voor het aantal liedjes in de wachtrij bereikt (%s)" % permissions.max_songs, expire_in=30
+                "Je hebt de limiet voor het aantal nummers in de wachtrij bereikt (%s)" % permissions.max_songs, expire_in=30
             )
 
         await self.send_typing(channel)
@@ -1292,7 +1292,7 @@ class MusicBot(discord.Client):
         t0 = time.time()
 
         busymsg = await self.safe_send_message(
-            channel, "Verwerkt %s nummers..." % num_songs)  # TODO: From playlist_title
+            channel, "%s nummers verwerken..." % num_songs)  # TODO: From playlist_title
         await self.send_typing(channel)
 
         entries_added = 0
@@ -1364,7 +1364,7 @@ class MusicBot(discord.Client):
         if not songs_added:
             basetext = "Geen nummers toegevoegd, alle nummers waren te lang (%ss)" % permissions.max_song_length
             if skipped:
-                basetext += "\nBovendien is het huidige nummer overgeslagen omdat dat te lang is."
+                basetext += "\nBovendien is het huidige nummer overgeslagen omdat het te lang is."
 
             raise exceptions.CommandError(basetext, expire_in=30)
 
@@ -1378,7 +1378,7 @@ class MusicBot(discord.Client):
 
         Doorzoekt een website naar een video
         - service: een van de volgende diensten:
-            - youtube (yt) (standaard indien niet aangeven)
+            - youtube (yt) (standaard indien niet opgegeven)
             - soundcloud (sc)
             - yahoo (yh) (waarom yahoo, het is huidig jaar)
         - nummer: geef aan hoeveel video's je wilt beoordelen:
@@ -1389,7 +1389,7 @@ class MusicBot(discord.Client):
 
         if permissions.max_songs and player.playlist.count_for_user(author) > permissions.max_songs:
             raise exceptions.PermissionsError(
-                "Je hebt je limiet voor maximale nummers in playlist bereikt (%s)" % permissions.max_songs,
+                "Je hebt je limiet voor maximum aantal nummers in playlist bereikt (%s)" % permissions.max_songs,
                 expire_in=30
             )
 
@@ -1799,7 +1799,7 @@ class MusicBot(discord.Client):
         if 0 < new_volume <= 100:
             player.volume = new_volume / 100.0
 
-            return Response('volume aangepast van %d to %d' % (old_volume, new_volume), reply=True, delete_after=20)
+            return Response('Volume aangepast van %d to %d' % (old_volume, new_volume), reply=True, delete_after=20)
 
         else:
             if relative:
@@ -2172,7 +2172,7 @@ class MusicBot(discord.Client):
         """
         boo
         """
-        message = await self.send_message(channel, ";play spooky scary skeletoons the living tombstone")
+        message = await self.send_message(channel, ";play spooky scary skeletoons the living tombstone") #spooky
         await self.delete_message(message)
         return Response(":ghost:", delete_after=20)
 
